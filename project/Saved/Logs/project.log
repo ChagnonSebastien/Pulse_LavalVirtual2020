@@ -573,3 +573,46 @@ LogConfig: Setting CVar [[r.setres:1280x720]]
 [2020.02.08-21.17.49:341][841]LogUObjectHash: Compacting FUObjectHashTables data took   2.92ms
 [2020.02.08-21.17.51:526][841]LogSlate: Window 'Delete Assets' being destroyed
 [2020.02.08-21.17.51:590][841]LogUObjectHash: Compacting FUObjectHashTables data took   2.10ms
+[2020.02.08-21.20.26:797][126]LogSlate: Window 'Pick Parent Class' being destroyed
+[2020.02.08-21.20.30:213][533]LogAssetEditorManager: Opening Asset editor for Blueprint /Game/Pawn.Pawn
+[2020.02.08-21.21.10:795][310]LogSlate: Took 0.000242 seconds to synchronously load lazily loaded font '../../../Engine/Content/Slate/Fonts/Roboto-BoldCondensed.ttf' (158K)
+[2020.02.08-21.21.25:901][ 94]Cmd: OBJ SAVEPACKAGE PACKAGE="/Game/Pawn" FILE="../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Content/Pawn.uasset" SILENT=true
+[2020.02.08-21.21.25:935][ 94]LogSavePackage: Moving '../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Saved/PawnDD10361A434934BBCCF6DB944812D2E2.tmp' to '../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Content/Pawn.uasset'
+[2020.02.08-21.21.26:977][216]Cmd: OBJ SAVEPACKAGE PACKAGE="/Game/Pawn" FILE="../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Content/Pawn.uasset" SILENT=true
+[2020.02.08-21.21.26:995][216]LogSavePackage: Moving '../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Saved/Pawn483528BE41B7398148F1A2BB71D64B38.tmp' to '../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Content/Pawn.uasset'
+[2020.02.08-21.21.27:670][294]Cmd: OBJ SAVEPACKAGE PACKAGE="/Game/Pawn" FILE="../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Content/Pawn.uasset" SILENT=true
+[2020.02.08-21.21.27:683][294]LogSavePackage: Moving '../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Saved/Pawn24DFEFD148471EB4FBEB2CA8AF16081E.tmp' to '../../../../../../Users/projet4/Desktop/LavalVirtual2020/project/Content/Pawn.uasset'
+[2020.02.08-21.21.29:002][450]LogSlate: Window 'Pawn' being destroyed
+[2020.02.08-21.21.29:006][450]LogSlate: Window 'Pawn' being destroyed
+[2020.02.08-21.21.32:096][807]LogSlate: FSceneViewport::OnFocusLost() reason 0
+[2020.02.08-21.22.00:249][177]LogBlueprintUserMessages: Early PlayInEditor Detection: Level '/Temp/Untitled_1.Untitled_1:PersistentLevel' has LevelScriptBlueprint '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled' with GeneratedClass '/Temp/Untitled_1.Untitled_C' with ClassGeneratedBy '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled'
+[2020.02.08-21.22.00:249][177]BlueprintLog: New page: Pre-Play auto-recompile
+[2020.02.08-21.22.00:250][177]LogPlayLevel: [PlayLevel] Compiling Pawn before play...
+[2020.02.08-21.22.00:419][177]LogUObjectHash: Compacting FUObjectHashTables data took   2.69ms
+[2020.02.08-21.22.00:419][177]LogPlayLevel: PlayLevel: Blueprint regeneration took 169 ms (1 blueprints)
+[2020.02.08-21.22.00:420][177]PIE: New page: PIE session: Untitled_1 (2020-02-08 11:22:00)
+[2020.02.08-21.22.00:432][177]LogPlayLevel: Creating play world package: /Temp/UEDPIE_0_Untitled_1
+[2020.02.08-21.22.00:435][177]LogPlayLevel: PIE: StaticDuplicateObject took: (0.002413s)
+[2020.02.08-21.22.00:436][177]LogAIModule: Creating AISystem for world Untitled_1
+[2020.02.08-21.22.00:436][177]LogPlayLevel: PIE: World Init took: (0.001005s)
+[2020.02.08-21.22.00:436][177]LogPlayLevel: PIE: Created PIE world by copying editor world from /Temp/Untitled_1.Untitled_1 to /Temp/UEDPIE_0_Untitled_1.Untitled_1 (0.003700s)
+[2020.02.08-21.22.00:463][177]LogUObjectHash: Compacting FUObjectHashTables data took   1.42ms
+[2020.02.08-21.22.00:485][177]LogInit: XAudio2 using 'VIVE Pro (2- NVIDIA High Definition Audio)' : 2 channels at 48 kHz using 16 bits per sample (channel mask 0x3)
+[2020.02.08-21.22.00:495][177]LogInit: FAudioDevice initialized.
+[2020.02.08-21.22.00:503][177]LogSlate: Updating window title bar state: overlay mode, drag disabled, window buttons hidden, title bar hidden
+[2020.02.08-21.22.00:546][177]LogLoad: Game class is 'GameModeBase'
+[2020.02.08-21.22.00:547][177]LogWorld: Bringing World /Temp/UEDPIE_0_Untitled_1.Untitled_1 up for play (max tick rate 0) at 2020.02.08-16.22.00
+[2020.02.08-21.22.00:548][177]LogWorld: Bringing up level for play took: 0.000498
+[2020.02.08-21.22.00:562][177]LogBlueprintActionDatabase: Requesting refresh due to module change: Voice (loaded)
+[2020.02.08-21.22.00:565][177]LogBlueprintActionDatabase: Requesting refresh due to module change: MovieSceneCapture (loaded)
+[2020.02.08-21.22.00:565][177]LogContentBrowser: Native class hierarchy updated for 'MovieSceneCapture' in 0.0004 seconds. Added 20 classes and 0 folders.
+[2020.02.08-21.22.00:568][177]PIE: Play in editor start time for /Temp/UEDPIE_0_Untitled_1 -0,346
+[2020.02.08-21.22.00:568][177]LogBlueprintUserMessages: Late PlayInEditor Detection: Level '/Temp/Untitled_1.Untitled_1:PersistentLevel' has LevelScriptBlueprint '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled' with GeneratedClass '/Temp/Untitled_1.Untitled_C' with ClassGeneratedBy '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled'
+[2020.02.08-21.22.00:610][178]LogRenderer: Reallocating scene render targets to support 3416x1900 Format 9 NumSamples 1 (Frame:1).
+[2020.02.08-21.22.07:448][765]LogSlate: FSceneViewport::OnFocusLost() reason 2
+[2020.02.08-21.22.08:531][806]LogSlate: Window 'project Game Preview Standalone (64-bit/PCD3D_SM5)' being destroyed
+[2020.02.08-21.22.08:536][806]LogBlueprintUserMessages: Early EndPlayMap Detection: Level '/Temp/Untitled_1.Untitled_1:PersistentLevel' has LevelScriptBlueprint '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled' with GeneratedClass '/Temp/Untitled_1.Untitled_C' with ClassGeneratedBy '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled'
+[2020.02.08-21.22.08:564][806]LogPlayLevel: Display: Shutting down PIE online subsystems
+[2020.02.08-21.22.08:565][806]LogBlueprintUserMessages: Late EndPlayMap Detection: Level '/Temp/Untitled_1.Untitled_1:PersistentLevel' has LevelScriptBlueprint '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled' with GeneratedClass '/Temp/Untitled_1.Untitled_C' with ClassGeneratedBy '/Temp/Untitled_1.Untitled_1:PersistentLevel.Untitled'
+[2020.02.08-21.22.08:642][806]LogUObjectHash: Compacting FUObjectHashTables data took   3.92ms
+[2020.02.08-21.22.08:654][807]LogPlayLevel: Display: Destroying online subsystem :Context_3
