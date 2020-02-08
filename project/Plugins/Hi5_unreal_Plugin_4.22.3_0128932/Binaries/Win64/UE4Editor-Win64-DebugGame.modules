@@ -1,0 +1,8 @@
+{
+	"BuildId": "5660361",
+	"Modules": 
+	{
+		"MotionCaptureEditor": "UE4Editor-MotionCaptureEditor-Win64-DebugGame.dll",
+		"MotionCaptureRuntime": "UE4Editor-MotionCaptureRuntime-Win64-DebugGame.dll"
+	}
+}

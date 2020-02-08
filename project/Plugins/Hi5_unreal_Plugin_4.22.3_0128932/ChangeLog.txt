@@ -1,0 +1,20 @@
+Change log of Hi5_UE4_SDK
+=========================
+
+2019-06-27 v1.1.0.0128932.20190628
+* Change MotionCaptureAvatarComponent's behavior: If the AvatarName property is NAME_None, now it will be set to DefaultGlove automatically.
+
+2018-04-24 v1.0.0.655.1
++ Add APIs to get joints' local positions and rotations.
++ Add APIs to get the ID of tracker which binded to Hi5 glove.
++ Automatically load calibration and binding relationship data.
+^ Merge the APIs of saving calibration and binding relationship data to one API.
+^ Merge the APIs of loading calibration and binding relationship data to one API.
+* Based on C++ SDK v1.0.0.655
+
+2018-02-07 v0.9.8.553.3
+* Based on C++ SDK v0.9.8.553
+
+2017-06-19 hackathon_v1
+* Based on C++ SDK v0.9.8.343
+

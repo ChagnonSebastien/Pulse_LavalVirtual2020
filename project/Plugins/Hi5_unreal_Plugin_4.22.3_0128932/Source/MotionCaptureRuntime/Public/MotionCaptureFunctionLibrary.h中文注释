@@ -1,0 +1,504 @@
+/**
+ * @file        MotionCaptureFunctionLibrary.h
+ * @brief       本文件包含所有集成诺亦腾公司Hi5手套数据到UE4引擎相关的API
+ * @author      Baojing Zhou
+ * @date        2017-08-31
+ * @details
+ * 本插件工作在其自身要求的上下文环境中。在该上下文环境创建之前，插件无法发现Hi5手套硬件。因此使用本插件 的第一件工作就是创建其上下文环境。
+ * UMotionCaptureFunctionLibrary::StartMocapService就是用来完成这项工作的，UMotionCaptureFunctionLibrary::StopMocapService用来销毁上下文环境。
+ *
+ * Hi5手套被设计为可以与HTC的vive设备一起工作：Hi5手套捕捉手部姿态，vive跟踪器或手柄（本文档将其均简称为跟踪器）捕捉手部整体在空间中的位置。
+ * 那么哪个跟踪器跟踪左手，哪个跟踪器跟踪右手？我们设计了一系列特殊姿态来解决这个问题。
+ *
+ * 要建立左右手套与追踪器之间的对应关系，我们需要做【校准】。校准就是在以B-Pose或P-Pose为参数调用
+ * UMotionCaptureFunctionLibrary::CalibrationGlove时做刚才提及的一系列特殊姿态。在B-Pose成功校准后，对应关系就建立了。
+ * 如果校准失败或不满意校准的结果，可以重新校准。
+ * UMotionCaptureFunctionLibrary::SaveCalibrationData用于存储左右手套与追踪器之间的对应关系以及硬件校准结果到文件。相应地，
+ * UMotionCaptureFunctionLibrary::LoadCalibrationData用于加载这些信息。
+ * 
+ * @par         Copyright (c): Noitom
+ */
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "BoneLists.h"
+#include "MotionCaptureFunctionLibrary.generated.h"
+
+/**
+ * 定义校准姿态类型
+ */
+UENUM(BlueprintType)
+enum class ECalibrationPose :uint8
+{
+	//GCP_Unknown = -1,
+	GCP_TPose     = 0,          ///< T姿态（暂不使用）
+    GCP_APose,                  ///< A姿态（暂不使用）
+    GCP_PPose,                  ///< P姿态
+    GCP_BPose,                  ///< B姿态
+    GCP_CPose,                  ///< C姿态（暂不使用）
+};
+
+/**
+ * 定义手部类型
+ */
+UENUM(BlueprintType)
+enum class EGloveMod :uint8
+{
+	GlM_BothGloves = 0, ///< 双手
+    GlM_LeftGlove,      ///< 左手
+    GlM_RightGlove,     ///< 右手
+};
+
+/**
+ * 定义Hi5手套的位移数据来源
+ */
+UENUM(BlueprintType)
+enum class EGlovePositionSource :uint8
+{
+	VivePosition = 0,	///< 位移数据由HTC vive系统提供
+	AlicePosition,		///< 暂不使用
+	Other				///< 暂不使用
+};
+
+/**
+ * 定义Hi5手套电量水平
+ */
+UENUM(BlueprintType)
+enum class EGlovePowerLevel :uint8
+{
+	Unknown,	///< 无法获取电量信息
+	Low,		///< 电量过低
+	Normal,		///< 电量正常
+	Full,		///< 电量充足
+};
+
+/**
+ * 定义Hi5手套磁化状况
+ */
+UENUM(BlueprintType)
+enum class EGloveMagneticedState :uint8
+{
+	Unknown,
+	Bad,		///< 严重磁化
+	Warn,		///< 中等磁化
+	Normal,		///< 正常
+};
+
+UCLASS()
+class MOTIONCAPTURERUNTIME_API UMotionCaptureFunctionLibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+	
+	
+public:
+	UMotionCaptureFunctionLibrary();
+
+	/**
+     * 启动MocapCapture插件的数据服务。初始化插件运行环境。
+     *
+     * @param[in] PosSrc 指定手套位移数据来源。取值为[Vive, Alice, Other]三者之一。
+     * @param[in] ReadLocal 如果手套数据来自插在本地电脑上的Hi5适配器，则传True，否则传False。对Vive使用来说，使用默认的True即可。
+     *
+     * @retval true 成功
+     * @retval false 失败
+     */
+	UFUNCTION(BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool StartMocapService(
+		EGlovePositionSource PosSrc = EGlovePositionSource::VivePosition,
+		bool ReadLocal = true);
+
+	/**
+     * 停止插件数据服务。
+     */
+    UFUNCTION(BlueprintCallable, Category = "Motion Capture|Data Service")
+	static void StopMocapService();
+
+	/**
+     * 校准Hi5手套硬件。
+     * 在本版本，只接受B和P姿态。
+     *
+     * @param[in] Pose 指定想要校准的姿态。[B, P]之一。
+     * @param[in] TimeOut （单位: 毫秒）。如果在TimeOut毫秒内仍未完成校准动作，校准过程会结束。
+	 *
+	 * @note 做B-Pose，TimeOut建议5000毫秒以上。P-Pose建议3000毫秒以上。
+     * 如果Hi5手套未开机，该函数什么也不做。
+     */
+	UFUNCTION(BlueprintCallable, Category = "Motion Capture|Data Service")
+	static void CalibrationGlove (ECalibrationPose Pose, int32 TimeOut = 5000);
+
+	/**
+     * 查询校准进度。
+	 *
+	 * @return 校准进度。取值范围在[0, 100].
+	 *
+	 * @note 100代表当前姿态校准完成。
+     */
+	UFUNCTION(BlueprintCallable, Category = "Motion Capture|Data Service")
+	static int32 GetCalibrationProgress();
+
+	/**
+     * 获取手套位移数据来源类型。
+     *
+     * @return Vive | Alice | Other
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static EGlovePositionSource GetGlovePositionSource ();
+
+	/**
+     * 从默认文件加载校准数据。
+	 *
+	 * @retval true 成功
+	 * @retval false 失败
+	 *
+     * @note 默认文件为CalibrationData和OpticalDeviceBindInfo.xml两个文件，存储路径与本地用户名有关。
+     * 如本机用户名为your_name，则路径为: C:/Users/your_name/AppData/Roaming/Hi5。
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool LoadCalibrationData ();
+
+	/**
+     * 保存校准数据到默认文件。 
+	 *
+	 * @retval true 成功
+	 * @retval false 失败
+	 * 
+	 * @note 默认文件为CalibrationData和OpticalDeviceBindInfo.xml两个文件，存储路径与本地用户名有关。
+     * 如本机用户名为your_name，则路径为: C:/Users/your_name/AppData/Roaming/Hi5。
+	 */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool SaveCalibrationData ();
+
+    /**
+     * 振动左手手套。
+     *
+     * @param[in] GloveTimeSpan 左手手套振动时长。单位：毫秒。
+     *
+     * @note GloveTimeSpan的有效取值范围是[0, 5000]。
+     * 大于5000的值等价于5000.
+     * 0代表停止振动。
+     * 负值代表什么都不做，即手套保持调用该函数时的振动状态。
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static void VibrateLeftGlove (const int GloveTimeSpan /*ms*/);
+
+	/**
+     * 振动右手手套。
+     *
+     * @param[in] GloveTimeSpan 右手手套振动时长。单位：毫秒。
+     *
+     * @note GloveTimeSpan的有效取值范围是[0, 5000]。
+     * 大于5000的值等价于5000.
+     * 0代表停止振动。
+     * 负值代表什么都不做，即手套保持调用该函数时的振动状态。
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static void VibrateRightGlove (const int GloveTimeSpan /*ms*/);
+
+    /**
+	 * 同时振动左右手套。
+	 *
+	 * @param[in] LeftGloveTimeSpan 左手手套振动时长。单位：毫秒。
+	 * @param[in] RightGloveTimeSpan 右手手套振动时长。单位：毫秒。
+	 *
+	 * @note GloveTimeSpan的有效取值范围是[0, 5000]。
+     * 大于5000的值等价于5000.
+     * 0代表停止振动。
+     * 负值代表什么都不做，即手套保持调用该函数时的振动状态。
+	 */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+    static void VibrateGloves (const int LeftGloveTimeSpan /*ms*/, const int RightGloveTimeSpan /*ms*/);
+
+	/**
+     * 通过光学设备Id查询其序列号。
+     *
+     * @param[in] Id 光学设备Id
+     * @param[out] SN 接收设备序列号
+     *
+     * @retval true 查询成功
+     * @retval false 查询失败
+     */
+	UFUNCTION(BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool GetOptiDeviceSN(int32 Id, FString& SN);
+
+    /**
+     * 查询指定手套是否有对应的光学设备，如果有，则继续查询该光学设备序列号。
+     *
+     * @param[in] Hand 左手或右手
+     * @param[out] DeviceSN 与指定手套对应的光学设备的序列号
+     *
+     * @retval true 指定手套有对应光学设备
+     * @retval false 指定手套无对应光学设备
+     *
+     * @warning Hand必须是左或右之一。
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool GetOptiDeviceBindState (EGloveMod Hand, FString& DeviceSN);
+
+	/**
+     * 查询手套电量水平。
+     *
+     * @param[out] LeftGlove 左手电量水平
+     * @param[out] RightGlove 右手电量水平
+     *
+     * @see EGlovePowerLevel
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static void GetGlovePowerLevel (EGlovePowerLevel& LeftGlove, EGlovePowerLevel& RightGlove);
+
+	/**
+     * 查询手套磁化状况。
+     * 
+     * @param[out] LeftGlove 左手磁化状况
+     * @param[out] RightGlove 右手磁化状况
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static void GetGloveMagneticed(EGloveMagneticedState& LeftGlove, EGloveMagneticedState& RightGlove);
+    
+    /**
+     * 查询指定手套是否可用。
+     *
+     * @param[in] Mod 手套类型。左或右或双手。
+     *
+     * @retval true 指定手套可用。
+     * @retval false 指定手套不可用。
+     *
+     * @note 当Mod是GlM_BothGloves时，那么当且仅当双手均可用时返回true。
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool IsGloveAvailable (EGloveMod Mod);
+
+    /**
+     * 查询Hi5手套适配器是否可用。
+     *
+     * @retval true 可用
+     * @retval false 不可用
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool IsDongleAvailable ();
+
+    /**
+     * 获取指定vive追踪器或手柄在UE4坐标系下的位置和旋转。
+     *
+     * @param[in] DeviceId vive追踪器或手柄的设备Id
+     * @param[out] Position 设备位置值
+     * @param[out] Rotation 设备旋转值
+     *
+     * @retval true 设备处于连接且正常跟踪状态
+     * @retval false 设备未连接或跟踪不正常
+     */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool GetTrackedDeviceDataInUESpace (int DeviceId, FVector& Position, FRotator& Rotation);
+
+    /**
+	 * 获取与左手绑定的Tracker的ID
+	 *
+	 * @retval -1 返回的ID无效
+	 * @retval other 有效值
+	 * 
+	 * @note 仅在GlovePositionSource是VivePosition时，该函数才有意义
+	 */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static int GetLeftTrackerId ();
+
+	/**
+	 * 获取与右手绑定的Tracker的ID
+	 *
+	 * @retval -1 返回的ID无效
+	 * @retval other 有效值
+	 * 
+	 * @note 仅在GlovePositionSource是VivePosition时，该函数才有意义
+	 */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static int GetRightTrackerId ();
+
+    /**
+     * 获取手部所有关节局部姿态数据，以UE4坐标系表示
+     *
+     * @param[in] Glove 左手或右手
+     * @param[out] Positions 关节位置数据
+     * @param[out] Orientations 关节旋转数据
+     *
+     * @retval true 成功
+     * @retval false 失败
+     *
+     * @note
+     * 如果你想获取RightHandThumb1的局部位置和旋转数据，可以如下操作：
+     * @code
+     * TArray<FVector> Positions;
+     * TArray<FRotator> Orientations;
+     * GetParsedLocalJointsData(EGloveMod::GlM_LeftGlove, Positions, Orientations);
+     * FVector pos = Positions[EPNBones::RightHandThumb1];
+     * FRotator rot = Orientations[EPNBones::RightHandThumb1];
+     * @endcode
+     * 在蓝图里，这里的数组索引可以用[Literal enum EPNBones]节点来构造。
+     * ForeArm数据是无效的，请勿使用。
+     * 
+     * @warning Glove必须是左手或右手。
+     */
+	static bool GetParsedLocalJointsData (EGloveMod Glove, TArray<FVector>& Positions, TArray<FRotator>& Orientations);
+
+    /**
+	 * 获取指定关节的局部位置和旋转数据
+	 *
+	 * @param[in] Glove 左手或右手
+	 * @param[in] Bone 指定关节
+	 * @param[out] Position 位置数据
+	 * @param[out] Orientation 旋转数据
+	 *
+	 * @retval true 成功
+	 * @retval false 失败
+	 *
+	 * @note ForeArm数据是无效的，请勿使用。
+	 */
+	UFUNCTION (BlueprintCallable, Category = "Motion Capture|Data Service")
+	static bool GetLocalJointData (EGloveMod Glove, EMCBones::Type Bone, FVector& Position, FRotator& Orientation);
+
+    
+
+	/**
+     * \cond DOXYGEN_PUBLIC
+     */
+    
+	/////////////////
+	// internal use
+    // The following interfaces cannot be seen from Blueprint.
+
+
+	/**
+     * 保存左右手套与光学设备之间的对应关系到文件。
+     *
+     * @param[in] FileName 文件名
+     *
+     * @retval true 保存成功
+     * @retval false 保存失败
+	 *
+	 * @note 文件的存储路径为：$FOLDERID_RoamingAppData/Hi5. 该路径与本地用户名有关，
+     * 如本机用户名为your_name，则路径为: C:/Users/your_name/AppData/Roaming/Hi5。
+	 * FileName不能为绝对路径。
+     */
+	static bool SaveOptiDeviceBindStateToFile (const FString& FileName = TEXT ("OpticalDeviceBindInfo.xml"));
+	
+	/**
+     * 加载左右手套与光学设备之间的对应关系文件，并应用这些关系。
+     *
+     * @param[in] FileName 文件名
+     *
+     * @retval true 加载成功
+     * @retval false 加载失败
+     *
+	 * @note 如果你有自己的对应关系文件，需要把它放置到你的($FOLDERID_RoamingAppData/Hi5)目录下。
+     * @see UMotionCaptureFunctionLibrary::SaveOptiDeviceBindStateToFile
+     */
+	static bool LoadOptiDeviceBindStateFromFile (const FString& FileName = TEXT ("OpticalDeviceBindInfo.xml"));
+
+	/**
+     * 保存当前校准数据到文件。
+     *
+     * @param[in] FileName 存储文件名
+     *
+     * @retval true 存储成功
+     * @retval false 存储失败
+	 *
+	 * @note 文件的存储路径为：$FOLDERID_RoamingAppData/Hi5. 该路径与本地用户名有关，
+     * 如本机用户名为your_name，则路径为: C:/Users/your_name/AppData/Roaming/Hi5。
+	 * FileName不能为绝对路径。
+     */
+	static bool SaveCalibrationFile(const FString& FileName = TEXT("CalibrationData"));
+
+	/**
+     * 加载校准数据文件并应用到Hi5手套。
+     *
+     * @param[in] FileName 校准数据文件
+     *
+     * @retval true 加载成功
+     * @retval false 加载失败
+	 *
+	 * @note 如果你有自己的校准数据文件，需要将其放置到你的($FOLDERID_RoamingAppData/Hi5)目录下。
+     */
+	static bool LoadCalibrationFile(const FString& FileName = TEXT("CalibrationData"));
+
+
+	/**
+     * Get the tracker's location and orientation.
+     *
+     * @param[in] DeviceId Device id
+     * @param[out] pos Device Location
+     * @param[out] rot Device orientation
+     *
+     * @retval true Succeeded.
+     * @retval false Failed.
+     */
+	static bool GetTrackedDeviceDataInViveSpace (int DeviceId, float* pos, float* rot);
+
+    /**
+     * Convert coordinates from UE space to Vive space.
+     *
+     * @param[in] Position Position In UE space.
+     * @param[in] Rotation Rotation in UE space.
+     * @param[out] pos Position in Vive space.
+     * @param[out] rot Rotation in Vive space.
+     */
+	static void UESpace2ViveSpace (const FVector& Position, const FRotator& Rotation, float* pos, float* rot);
+
+	/**
+     * Get the Hi5 Glove data from local machine.
+     *
+     * @param[in] Glove Left or Right
+     * @param[in] AvatarName Avatar name.
+     * @param[out] Data Glove data. The data type is [HI5BVHData].
+     *
+     * @retval true Succeeded.
+     * @retval false Failed.
+     *
+     * @warning Glove must be left or right.
+     */
+	static bool GetLocalGloveData (EGloveMod Glove, const FString &AvatarName, TArray<uint8>& Data);
+
+	/**
+     * Some remote glove data arrived.
+     *
+     * @param[in] AvatarName Avatar name.
+     * @param[in] Data The received remote glove data. The data type is [GloveBVHData].
+     */
+	static void OnReceiveGloveData (const FString& AvartarName, const TArray<uint8>& Data);
+
+	/**
+	 * Get gloves' local position relative to the binding optical device. The returned result is in UE space.
+	 * 
+	 * @param[out] LeftOffset The left glove's offset.
+	 * @param[out] RightOffset The right glove's offset.
+	 */
+	static void GetGloveOffsetToOpticalDevice (FVector& LeftOffset, FVector& RightOffset);
+
+	/**
+	 * Set the Id which represent the optical device binded to glove to -1.
+	 */
+	static void ResetDeviceId ();
+
+	/**
+	 * Query the Id of the optical device binded to glove via the device's serial number.
+	 */
+	static void CacheDeviceId ();
+
+	/**
+	 * Get position and rotation of the optical device which was binded to specified glove.
+	 * The returned result is in UE space.
+	 *
+	 * @param[in] Mod Left or Right Hand. Must be GlM_LeftGlove or GlM_RightGlove.
+	 * @param[out] Position The optical device's position in UE space.
+	 * @param[out] Rotation The optical device's rotation in UE space.
+	 *
+	 */
+	static bool GetBindedOpticalDeviceDataInUESpace (EGloveMod Mod, FVector& Position, FRotator& Rotation);
+
+private:
+	static EGlovePositionSource GlovePositionSource;
+	static int LeftViveTrackerId;
+	static int RightViveTrackerId;
+
+    /**
+     * \endcond
+     */
+};
