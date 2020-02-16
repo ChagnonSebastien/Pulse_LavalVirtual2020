@@ -1,5 +1,0 @@
-C:\Users\projet4\Desktop\LavalVirtual2020\project\Plugins\Hi5_unreal_Plugin_4.22.3_0128932\Source\HI5Glove_SDK\HI5Glove_SDK.Build.cs
-C:\Users\projet4\Desktop\LavalVirtual2020\project\Plugins\Hi5_unreal_Plugin_4.22.3_0128932\Source\MotionCaptureEditor\MotionCaptureEditor.Build.cs
-C:\Users\projet4\Desktop\LavalVirtual2020\project\Plugins\Hi5_unreal_Plugin_4.22.3_0128932\Source\MotionCaptureRuntime\MotionCaptureRuntime.Build.cs
-C:\Users\projet4\Desktop\LavalVirtual2020\project\Intermediate\Source\project.Build.cs
-C:\Users\projet4\Desktop\LavalVirtual2020\project\Intermediate\Source\project.Target.cs
