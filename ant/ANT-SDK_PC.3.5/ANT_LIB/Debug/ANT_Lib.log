@@ -1,0 +1,41 @@
+﻿cl : Ligne de commande warning D9035: l'option 'Gm' est déconseillée et sera supprimée dans une version ultérieure
+  WinDevice.cpp
+  usb_device_si.cpp
+  usb_device_libusb.cpp
+  usb_device_handle_win.cpp
+  usb_device_handle_si.cpp
+  usb_device_handle_libusb.cpp
+  usb_device.cpp
+  dsi_timer.cpp
+  dsi_silabs_library.cpp
+  dsi_serial_vcp.cpp
+  dsi_serial_si.cpp
+  dsi_serial_libusb.cpp
+  dsi_serial_generic.cpp
+  dsi_serial.cpp
+  dsi_libusb_library.cpp
+  dsi_framer_integrated_antfs_client.cpp
+  dsi_framer_ant.cpp
+  dsi_framer.cpp
+  dsi_debug.cpp
+  dsi_ant_device_polling.cpp
+  Génération de code en cours...
+  Compilation en cours...
+  dsi_cm_library.cpp
+  dsi_ant_device.cpp
+  antfs_host_channel.cpp
+  antfs_host.cpp
+  antfs_client_channel.cpp
+  Génération de code en cours...
+cl : Ligne de commande warning D9035: l'option 'Gm' est déconseillée et sera supprimée dans une version ultérieure
+  macros.c
+  dsi_thread_win32.c
+  dsi_convert.c
+  crc.c
+  checksum.c
+  antfs_directory.c
+  Génération de code en cours...
+  ANT_Lib.vcxproj -> C:\Users\projet4\Desktop\LavalVirtual2020\ant\ANT-SDK_PC.3.5\Debug\ANT_LIB.lib
+  C:\Users\projet4\Desktop\LavalVirtual2020\ant\ANT-SDK_PC.3.5\ANT_LIB\..\Bin\DSI_CP210xManufacturing_3_1.dll
+  C:\Users\projet4\Desktop\LavalVirtual2020\ant\ANT-SDK_PC.3.5\ANT_LIB\..\Bin\DSI_SiUSBXp_3_1.dll
+  2 fichier(s) copié(s)

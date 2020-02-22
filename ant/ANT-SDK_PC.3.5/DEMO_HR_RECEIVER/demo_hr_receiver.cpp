@@ -23,21 +23,15 @@ All rights reserved.
 
 int main(int argc, char **argv)
 {
-   printf("********************************************************\n");
-   printf("Demo ANT+ Heart Rate Monitor (HRM) Receiver application\n");
-   printf("********************************************************\n");
+
+
 
    HRMReceiver* Receiver = new HRMReceiver();
 
    // Initialising with invalid device.
    // User will be prompted later if it wasn't passed in.
    // ucDeviceNumber = USB device to which the ANT device is connected
-   UCHAR ucDeviceNumber = 0xFF;
-
-   if(argc > 1)
-   {
-      ucDeviceNumber = (UCHAR) atoi(argv[1]);
-   }
+   UCHAR ucDeviceNumber = 0;
 
    if(Receiver->Init(ucDeviceNumber))
       Receiver->Start();
@@ -114,36 +108,36 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
    // If no device number was specified on the command line,
    // prompt the user for input.
 
-   if(ucDeviceNumber_ == 0xFF)
+   /*if(ucDeviceNumber_ == 0xFF)
    {
       printf("USB Device number?\n"); fflush(stdout);
       char st[1024];
       fgets(st, sizeof(st), stdin);
       sscanf(st, "%u", &ucDeviceNumber_);
    }
-   printf("USB Number: %d\n", ucDeviceNumber_);
+   printf("USB Number: %d\n", ucDeviceNumber_);*/
 
    // Prompting user for network parameters
    // Channel Number
-   printf("ANT Channel number? (Press Enter for default: 0)\n"); fflush(stdout);
-   char st[1024];
-   fgets(st, sizeof(st), stdin);
-   ucAntChannel = (UCHAR)atoi(st);
-   printf("Ant Channel number: %d\n", ucAntChannel);
+   //printf("ANT Channel number? (Press Enter for default: 0)\n"); fflush(stdout);
+   //char st[1024];
+   //fgets(st, sizeof(st), stdin);
+   ucAntChannel = (UCHAR)atoi("0");
+   //printf("Ant Channel number: %d\n", ucAntChannel);
 
    // Transmission type
-   printf("ANT Transmission type? (Press Enter for wildcarding)\n"); fflush(stdout);
-   char st1[1024];
-   fgets(st1, sizeof(st1), stdin);
-   ucTransType = (UCHAR)atoi(st1);
-   if (ucTransType == (UCHAR)0)
+   //printf("ANT Transmission type? (Press Enter for wildcarding)\n"); fflush(stdout);
+   //char st1[1024];
+   //fgets(st1, sizeof(st1), stdin);
+   ucTransType = (UCHAR)0;
+   /*if (ucTransType == (UCHAR)0)
    {
       printf("ANT Transmission type wildcarded\n");
    }
    else
    {
       printf("ANT Transmission type: %d\n", ucTransType);
-   }
+   }*/
 
    // Device Number
    printf("Transmitter Device number? (Press Enter for wildcarding)\n"); fflush(stdout);
@@ -160,18 +154,18 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
    }
 
    // Network Number
-   printf("Network number? (Press Enter for default: 0)\n"); fflush(stdout);
-   char st3[1024];
-   fgets(st3, sizeof(st3), stdin);
-   ucNetworkNum = (UCHAR)atoi(st3);
-   printf("Network Number: %d\n", ucNetworkNum);
+   //printf("Network number? (Press Enter for default: 0)\n"); fflush(stdout);
+   //char st3[1024];
+   //fgets(st3, sizeof(st3), stdin);
+   ucNetworkNum = (UCHAR)atoi("0");
+   //printf("Network Number: %d\n", ucNetworkNum);
 
    // Message Period
-   int period_option;
+   int period_option = 0;
    char st4[10];
    USHORT usMessagePeriods[] = USER_MESSAGE_PERIODS;
    int len_usMessagePeriods = sizeof(usMessagePeriods)/sizeof(USHORT);
-   while(1)
+   /*while(1)
    {
       printf("Message Period (in counts)? ");
       for (int i = 0; i < len_usMessagePeriods; i++)
@@ -195,7 +189,7 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
          printf("Message Period: %d\n", usMessagePeriods[period_option]);
          break;
       }
-   }
+   }*/
    usMessagePeriod = usMessagePeriods[period_option];
 
 
