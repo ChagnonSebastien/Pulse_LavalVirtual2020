@@ -18,6 +18,7 @@ All rights reserved.
 //#include <stdlib.h>
 #include <assert.h>
 //#include <string.h>
+#include "socket.h"
 
 #define CHANNEL_TYPE_MASTER       (0)
 #define CHANNEL_TYPE_SLAVE        (1)
@@ -78,6 +79,7 @@ public:
    BOOL Init(UCHAR ucDeviceNumber_);
    void Start();
    void Close();
+   Socket socket;
 
 private:
    BOOL InitANT();

@@ -25,7 +25,6 @@ int main(int argc, char **argv)
 {
 
 
-
    HRMReceiver* Receiver = new HRMReceiver();
 
    // Initialising with invalid device.
@@ -57,6 +56,7 @@ HRMReceiver::HRMReceiver()
    bDisplay = TRUE;
    bProcessedData = TRUE;
    bBroadcasting = FALSE;
+   socket = Socket();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
