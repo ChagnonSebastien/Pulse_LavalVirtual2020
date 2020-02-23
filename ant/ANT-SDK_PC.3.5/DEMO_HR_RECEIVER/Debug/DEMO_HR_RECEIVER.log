@@ -1,5 +1,8 @@
 ﻿cl : Ligne de commande warning D9035: l'option 'Gm' est déconseillée et sera supprimée dans une version ultérieure
   demo_hr_receiver.cpp
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(112): warning C4302: 'cast de type' : troncation de 'char *' à 'UCHAR'
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(112): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdlib.h(1191): note: voir la déclaration de 'getenv'
 c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(222): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(2263): note: voir la déclaration de 'sscanf'
   DEMO_HR_RECEIVER.vcxproj -> C:\Users\projet4\Documents\LavalVirtual2020\ant\ANT-SDK_PC.3.5\Debug\DEMO_HR_RECEIVER.exe

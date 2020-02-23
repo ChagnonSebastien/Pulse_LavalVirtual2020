@@ -49,7 +49,6 @@ All rights reserved.
 #define USER_RADIOFREQ        (57) // ANT+ spec
 #define USER_TRANSTYPE        ((UCHAR)0) // Wildcarded for pairing (default)
 #define USER_DEVICETYPE       (120) // ANT+ HRM
-#define USER_DEVICENUM        (10113) // Wildcarded for pairing (default)
 #define MESSAGE_TIMEOUT       (12) // = 12*2.5 = 30 seconds
 #define USER_NETWORK_NUM      ((UCHAR)0) // The network key is assigned to this network number (default)
 

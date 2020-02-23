@@ -109,7 +109,7 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
 
    ucAntChannel = USER_ANTCHANNEL;
    ucTransType = USER_TRANSTYPE;
-   usDeviceNum = USER_DEVICENUM;
+   usDeviceNum = (UCHAR)getenv("WAHOO_ID");
    ucNetworkNum = USER_NETWORK_NUM;
 
    // Message Period
