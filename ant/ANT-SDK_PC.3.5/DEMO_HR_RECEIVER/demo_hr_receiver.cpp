@@ -7,7 +7,7 @@ Copyright (c) Dynastream Innovations Inc. 2016
 All rights reserved.
 */
 #include "demo_hr_receiver.h"
-
+#include <string>
 ////////////////////////////////////////////////////////////////////////////////
 // The Demo ANT+ HRM Receiver PC app.
 //
@@ -109,7 +109,7 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
 
    ucAntChannel = USER_ANTCHANNEL;
    ucTransType = USER_TRANSTYPE;
-   usDeviceNum = (UCHAR)getenv("WAHOO_ID");
+   usDeviceNum = (USHORT)std::stoi(getenv("WAHOO_ID"));
    ucNetworkNum = USER_NETWORK_NUM;
 
    // Message Period
