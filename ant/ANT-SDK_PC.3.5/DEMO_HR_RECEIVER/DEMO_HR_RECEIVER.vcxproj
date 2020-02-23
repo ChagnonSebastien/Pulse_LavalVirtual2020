@@ -96,10 +96,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="demo_hr_receiver.cpp" />
+    <ClCompile Include="sample_server.cpp" />
+    <ClCompile Include="socket_server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_hr_receiver.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="socket_server.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DEMO_HR_RECEIVER.rc" />

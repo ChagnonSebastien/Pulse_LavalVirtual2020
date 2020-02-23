@@ -18,12 +18,21 @@
     <ClCompile Include="demo_hr_receiver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sample_server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="socket_server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_hr_receiver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="socket_server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -103,93 +103,14 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
    pclSerialObject = new DSISerialGeneric();
    assert(pclSerialObject);
 
-   // NOTE: Will fail if the module is not available.
-   // If no device number was specified on the command line,
-   // prompt the user for input.
-
-   /*if(ucDeviceNumber_ == 0xFF)
-   {
-      printf("USB Device number?\n"); fflush(stdout);
-      char st[1024];
-      fgets(st, sizeof(st), stdin);
-      sscanf(st, "%u", &ucDeviceNumber_);
-   }
-   printf("USB Number: %d\n", ucDeviceNumber_);*/
-
-   // Prompting user for network parameters
-   // Channel Number
-   //printf("ANT Channel number? (Press Enter for default: 0)\n"); fflush(stdout);
-   //char st[1024];
-   //fgets(st, sizeof(st), stdin);
-   ucAntChannel = (UCHAR)atoi("0");
-   //printf("Ant Channel number: %d\n", ucAntChannel);
-
-   // Transmission type
-   //printf("ANT Transmission type? (Press Enter for wildcarding)\n"); fflush(stdout);
-   //char st1[1024];
-   //fgets(st1, sizeof(st1), stdin);
-   ucTransType = (UCHAR)0;
-   /*if (ucTransType == (UCHAR)0)
-   {
-      printf("ANT Transmission type wildcarded\n");
-   }
-   else
-   {
-      printf("ANT Transmission type: %d\n", ucTransType);
-   }*/
-
-   // Device Number
-   printf("Transmitter Device number? (Press Enter for wildcarding)\n"); fflush(stdout);
-   char st2[1024];
-   fgets(st2, sizeof(st2), stdin);
-   usDeviceNum = (USHORT)atoi(st2);
-   if (usDeviceNum == (USHORT)0)
-   {
-      printf("Transmitter Device Number wildcarded\n");
-   }
-   else
-   {
-      printf("Transmitter Device Number: %d\n", usDeviceNum);
-   }
-
-   // Network Number
-   //printf("Network number? (Press Enter for default: 0)\n"); fflush(stdout);
-   //char st3[1024];
-   //fgets(st3, sizeof(st3), stdin);
-   ucNetworkNum = (UCHAR)atoi("0");
-   //printf("Network Number: %d\n", ucNetworkNum);
+   ucAntChannel = USER_ANTCHANNEL;
+   ucTransType = USER_TRANSTYPE;
+   usDeviceNum = USER_DEVICENUM;
+   ucNetworkNum = USER_NETWORK_NUM;
 
    // Message Period
-   int period_option = 0;
-   char st4[10];
    USHORT usMessagePeriods[] = USER_MESSAGE_PERIODS;
-   int len_usMessagePeriods = sizeof(usMessagePeriods)/sizeof(USHORT);
-   /*while(1)
-   {
-      printf("Message Period (in counts)? ");
-      for (int i = 0; i < len_usMessagePeriods; i++)
-      {
-         printf("%d: %d", i, usMessagePeriods[i]);
-         if (i != len_usMessagePeriods - 1)
-         {
-            printf(" , ");
-         }
-      }
-      printf("\n");
-      fflush(stdout);
-      fgets(st4, sizeof(st4), stdin);
-      period_option = atoi(st4);
-      if (period_option >= len_usMessagePeriods)
-      {
-         printf("Invalid Period. Try again\n");
-      }
-      else
-      {
-         printf("Message Period: %d\n", usMessagePeriods[period_option]);
-         break;
-      }
-   }*/
-   usMessagePeriod = usMessagePeriods[period_option];
+   usMessagePeriod = usMessagePeriods[USER_PERIOD_OPTION];
 
 
    // Initialize Serial object.

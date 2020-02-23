@@ -41,17 +41,18 @@ All rights reserved.
 #define INVALID_DEVICE        ((UCHAR)0xFF) // Arbitrarily chosen definition
 
 // Channel configuration specs for HRM Receiever (including network config defaults)
-#define USER_ANTCHANNEL       (0) // Arbitrarily chosen as default
+#define USER_ANTCHANNEL       ((UCHAR)0) // Arbitrarily chosen as default
 #define USER_NETWORK_KEY      {0xB9, 0xA5, 0x21, 0xFB, 0xBD, 0x72, 0xC3, 0x45} // ANT+ network key
 #define USER_RADIOFREQ        (57) // ANT+ spec
-#define USER_TRANSTYPE        (0) // Wildcarded for pairing (default)
+#define USER_TRANSTYPE        ((UCHAR)0) // Wildcarded for pairing (default)
 #define USER_DEVICETYPE       (120) // ANT+ HRM
-#define USER_DEVICENUM        (0) // Wildcarded for pairing (default)
+#define USER_DEVICENUM        (10113) // Wildcarded for pairing (default)
 #define MESSAGE_TIMEOUT       (12) // = 12*2.5 = 30 seconds
-#define USER_NETWORK_NUM      (0) // The network key is assigned to this network number (default)
+#define USER_NETWORK_NUM      ((UCHAR)0) // The network key is assigned to this network number (default)
 
 // Permitted ANT+ HRM Message periods
 #define USER_MESSAGE_PERIODS    {(USHORT)8070, (USHORT)16140, (USHORT)32280}
+#define USER_PERIOD_OPTION		((UCHAR)0) // Corresponds to message period 8070
 
 // Indexes into message recieved from ANT
 #define MESSAGE_BUFFER_DATA1_INDEX ((UCHAR) 0)
