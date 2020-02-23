@@ -9,6 +9,8 @@ All rights reserved.
 #ifndef __HR_RECEIVER_H__
 #define __HR_RECEIVER_H__
 
+#include "socket_server.h"
+
 #include "types.h"
 #include "dsi_framer_ant.hpp"
 //#include "dsi_thread.h"
@@ -18,6 +20,7 @@ All rights reserved.
 //#include <stdlib.h>
 #include <assert.h>
 //#include <string.h>
+#include "socket_server.h"
 
 
 #define CHANNEL_TYPE_MASTER       (0)
@@ -83,6 +86,7 @@ public:
 
 
 private:
+
    BOOL InitANT();
 
    // Starts the Message thread.
@@ -119,6 +123,8 @@ private:
 
    BOOL bDisplay;
    BOOL bProcessedData;
+
+   SocketServer socket;
 };
 
 #endif

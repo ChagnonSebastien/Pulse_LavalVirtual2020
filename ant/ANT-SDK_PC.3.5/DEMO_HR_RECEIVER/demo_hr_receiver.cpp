@@ -25,6 +25,7 @@ int main(int argc, char **argv)
 {
 
 
+
    HRMReceiver* Receiver = new HRMReceiver();
 
    // Initialising with invalid device.
@@ -32,8 +33,10 @@ int main(int argc, char **argv)
    // ucDeviceNumber = USB device to which the ANT device is connected
    UCHAR ucDeviceNumber = 0;
 
+
    if(Receiver->Init(ucDeviceNumber))
-      Receiver->Start();
+
+      Receiver->Start(); // initANT and receives hr from monitor
    else
       delete Receiver;
    return 0;
@@ -56,6 +59,7 @@ HRMReceiver::HRMReceiver()
    bDisplay = TRUE;
    bProcessedData = TRUE;
    bBroadcasting = FALSE;
+   socket = SocketServer();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +87,7 @@ HRMReceiver::~HRMReceiver()
 ////////////////////////////////////////////////////////////////////////////////
 BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
 {
-
+	socket.init();
    BOOL bStatus;
 
    // Initialize condition var and mutex
@@ -380,6 +384,7 @@ DSI_THREAD_RETURN HRMReceiver::RunMessageThread(void *pvParameter_)
 ////////////////////////////////////////////////////////////////////////////////
 void HRMReceiver::MessageThread()
 {
+
    ANT_MESSAGE stMessage;
    USHORT usSize;
    bDone = FALSE;
@@ -875,6 +880,10 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
                                   (USHORT)stMessage.aucData[ucDataOffset + 4];
             UCHAR ucHR = stMessage.aucData[ucDataOffset + 7];
             UCHAR ucBeatCount = stMessage.aucData[ucDataOffset + 6];
+
+			const char *sendHR = (const char*)&ucHR;
+
+			socket.sendMessage(sendHR);
 
             printf("HR: %d , Beat Count: %d , Beat Event Time: %d\n", ucHR, ucBeatCount, usEventTime);
 
