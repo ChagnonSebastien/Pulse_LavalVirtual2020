@@ -56,7 +56,6 @@ HRMReceiver::HRMReceiver()
    bDisplay = TRUE;
    bProcessedData = TRUE;
    bBroadcasting = FALSE;
-   socket = Socket();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
