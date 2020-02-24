@@ -167,10 +167,26 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
 
 void HRMReceiver::Restart() {
 	UCHAR ucDeviceNumber = 0;
+	ReinitAttributes();
 	if (Init(ucDeviceNumber, false)) {
 		Start();
 	}
 	
+}
+
+
+void HRMReceiver::ReinitAttributes() {
+
+	ucChannelType = CHANNEL_TYPE_SLAVE; // HRM Receiver is a slave
+	pclSerialObject = (DSISerialGeneric*)NULL;
+	pclMessageObject = (DSIFramerANT*)NULL;
+	uiDSIThread = (DSI_THREAD_ID)NULL;
+	bMyDone = FALSE;
+	bDone = FALSE;
+	bDisplay = TRUE;
+	bProcessedData = TRUE;
+	bBroadcasting = FALSE;
+
 }
 
 
@@ -186,9 +202,6 @@ void HRMReceiver::Close()
    //Wait for test to be done
    DSIThread_MutexLock(&mutexTestDone);
    bDone = TRUE;
-
-
-   printf("CLOSING CALLLEDD!!");
 
    UCHAR ucWaitResult = DSIThread_CondTimedWait(&condTestDone, &mutexTestDone, DSI_THREAD_INFINITE);
    assert(ucWaitResult == DSI_THREAD_ENONE);
@@ -222,7 +235,7 @@ void HRMReceiver::Start()
    BOOL bStatus;
 
    // Print out the menu to start
-   PrintMenu();
+   //PrintMenu();
 
    // Start ANT channel setup
    bStatus = InitANT();
@@ -354,7 +367,7 @@ void HRMReceiver::Start()
 
    printf("Closing the Heart Rate Monitor Receiver!\n");
 
-   //this->Restart();
+   this->Restart();
 
    return;
 
@@ -436,8 +449,6 @@ void HRMReceiver::MessageThread()
    UCHAR ucCondResult = DSIThread_CondSignal(&condTestDone);
    assert(ucCondResult == DSI_THREAD_ENONE);
    DSIThread_MutexUnlock(&mutexTestDone);
-
-   printf("END MESSAGE THREAD \n");
 
 }
 
@@ -575,7 +586,7 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
                }
                printf("Channel unassigned\n");
                printf("Press enter to exit\n");
-			   keybd_event(VK_RETURN, 0, KEYEVENTF_EXTENDEDKEY, 0);
+			   keybd_event(VK_RETURN, 0, 0, 0);
                bMyDone = TRUE;
                break;
             }
@@ -595,6 +606,7 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
                   printf("Error closing channel: Code 0%d\n", stMessage.aucData[2]);
                   break;
                }
+
                // If this message was successful, wait for EVENT_CHANNEL_CLOSED to confirm channel is closed
                break;
             }
@@ -1018,7 +1030,7 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
       }
    }
 
-   return;
+   //return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

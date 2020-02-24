@@ -81,6 +81,7 @@ public:
    HRMReceiver();
    virtual ~HRMReceiver();
    BOOL Init(UCHAR ucDeviceNumber_, BOOL initializeSocket);
+   void ReinitAttributes();
    void Start();
    void Close();
 
