@@ -33,9 +33,9 @@ int main(int argc, char **argv)
    // ucDeviceNumber = USB device to which the ANT device is connected
    UCHAR ucDeviceNumber = 0;
 
+   // initialize socket
 
-   if(Receiver->Init(ucDeviceNumber))
-
+   if(Receiver->Init(ucDeviceNumber, true))
       Receiver->Start(); // initANT and receives hr from monitor
    else
       delete Receiver;
@@ -85,9 +85,12 @@ HRMReceiver::~HRMReceiver()
 // ucDeviceNumber_: USB Device Number (0 for first USB stick plugged and so on)
 //                  If not specified on command line, 0xFF is passed in as invalid.
 ////////////////////////////////////////////////////////////////////////////////
-BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
+BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
 {
-	socket.init();
+	if (initializeSocket) {
+		socket.init();
+	}
+	
    BOOL bStatus;
 
    // Initialize condition var and mutex
@@ -162,6 +165,15 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
    return TRUE;
 }
 
+void HRMReceiver::Restart() {
+	UCHAR ucDeviceNumber = 0;
+	if (Init(ucDeviceNumber, false)) {
+		Start();
+	}
+	
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Close
@@ -174,6 +186,9 @@ void HRMReceiver::Close()
    //Wait for test to be done
    DSIThread_MutexLock(&mutexTestDone);
    bDone = TRUE;
+
+
+   printf("CLOSING CALLLEDD!!");
 
    UCHAR ucWaitResult = DSIThread_CondTimedWait(&condTestDone, &mutexTestDone, DSI_THREAD_INFINITE);
    assert(ucWaitResult == DSI_THREAD_ENONE);
@@ -192,6 +207,8 @@ void HRMReceiver::Close()
    DSIDebug::Close();
 #endif
 
+
+   // reinitalize receiver
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,7 +354,10 @@ void HRMReceiver::Start()
 
    printf("Closing the Heart Rate Monitor Receiver!\n");
 
+   //this->Restart();
+
    return;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -416,6 +436,8 @@ void HRMReceiver::MessageThread()
    UCHAR ucCondResult = DSIThread_CondSignal(&condTestDone);
    assert(ucCondResult == DSI_THREAD_ENONE);
    DSIThread_MutexUnlock(&mutexTestDone);
+
+   printf("END MESSAGE THREAD \n");
 
 }
 
@@ -553,6 +575,7 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
                }
                printf("Channel unassigned\n");
                printf("Press enter to exit\n");
+			   keybd_event(VK_RETURN, 0, KEYEVENTF_EXTENDEDKEY, 0);
                bMyDone = TRUE;
                break;
             }
@@ -883,9 +906,14 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
 
 			const char *sendHR = (const char*)&ucHR;
 
-			socket.sendMessage(sendHR);
+			int sendResult = socket.sendMessage(sendHR);
 
             printf("HR: %d , Beat Count: %d , Beat Event Time: %d\n", ucHR, ucBeatCount, usEventTime);
+
+			// If client is disconnected, reinitialize socket
+			if (sendResult == -1){
+				socket.init();
+			}
 
 
             if (ucDeviceType == CURRENT_DEVICE)

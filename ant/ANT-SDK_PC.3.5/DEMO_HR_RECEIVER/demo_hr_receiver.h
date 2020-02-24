@@ -21,6 +21,7 @@ All rights reserved.
 #include <assert.h>
 //#include <string.h>
 #include "socket_server.h"
+#include <conio.h>
 
 
 #define CHANNEL_TYPE_MASTER       (0)
@@ -79,7 +80,7 @@ class HRMReceiver {
 public:
    HRMReceiver();
    virtual ~HRMReceiver();
-   BOOL Init(UCHAR ucDeviceNumber_);
+   BOOL Init(UCHAR ucDeviceNumber_, BOOL initializeSocket);
    void Start();
    void Close();
 
@@ -87,6 +88,9 @@ public:
 private:
 
    BOOL InitANT();
+
+   // Reinitialize message thread if monitor is disconnected
+   void Restart();
 
    // Starts the Message thread.
    static DSI_THREAD_RETURN RunMessageThread(void *pvParameter_);
