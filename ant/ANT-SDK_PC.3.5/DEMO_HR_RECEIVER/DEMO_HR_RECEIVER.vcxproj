@@ -96,11 +96,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="demo_hr_receiver.cpp" />
+    <ClCompile Include="logs_manager.cpp" />
+    <ClCompile Include="player.cpp" />
     <ClCompile Include="sample_server.cpp" />
     <ClCompile Include="socket_server.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_hr_receiver.h" />
+    <ClInclude Include="logs_manager.h" />
+    <ClInclude Include="player.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="socket_server.h" />
   </ItemGroup>

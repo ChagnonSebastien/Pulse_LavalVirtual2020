@@ -24,16 +24,19 @@ All rights reserved.
 int main(int argc, char **argv)
 {
 
-
-
    HRMReceiver* Receiver = new HRMReceiver();
+   bool PLAYTEST_MODE = false;
 
-   // Initialising with invalid device.
+   // Initialising with invalid device. 
    // User will be prompted later if it wasn't passed in.
    // ucDeviceNumber = USB device to which the ANT device is connected
    UCHAR ucDeviceNumber = 0;
 
-   // initialize socket
+   // ask user if playtest mode on
+   // if playtest mode on, ask user to enter player profil
+
+   // if playtest mode off, server runs continuously
+
 
    if(Receiver->Init(ucDeviceNumber, true))
       Receiver->Start(); // initANT and receives hr from monitor
