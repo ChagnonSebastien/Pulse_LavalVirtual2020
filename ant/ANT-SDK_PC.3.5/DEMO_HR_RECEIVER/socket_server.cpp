@@ -88,4 +88,6 @@ void SocketServer::init() {
 	// No longer need server socket
 	closesocket(ListenSocket);
 
+	printf("Client successfully connected\n");
+
 }
