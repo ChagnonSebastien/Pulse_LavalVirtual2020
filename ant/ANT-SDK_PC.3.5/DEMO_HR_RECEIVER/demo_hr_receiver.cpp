@@ -1093,4 +1093,4 @@ void HRMReceiver::DetectDevice(UCHAR &ucDeviceType_, BOOL &bOldToggleBit_, UCHAR
       ucDeviceType_ = LEGACY_DEVICE;
       printf("Legacy Device detected\n");
    }
-}
+} 
