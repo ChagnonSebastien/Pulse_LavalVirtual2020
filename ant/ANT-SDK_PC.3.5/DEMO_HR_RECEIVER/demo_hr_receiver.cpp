@@ -33,9 +33,9 @@ int main(int argc, char **argv)
    // ucDeviceNumber = USB device to which the ANT device is connected
    UCHAR ucDeviceNumber = 0;
 
+   // initialize socket
 
-   if(Receiver->Init(ucDeviceNumber))
-
+   if(Receiver->Init(ucDeviceNumber, true))
       Receiver->Start(); // initANT and receives hr from monitor
    else
       delete Receiver;
@@ -85,9 +85,12 @@ HRMReceiver::~HRMReceiver()
 // ucDeviceNumber_: USB Device Number (0 for first USB stick plugged and so on)
 //                  If not specified on command line, 0xFF is passed in as invalid.
 ////////////////////////////////////////////////////////////////////////////////
-BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
+BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
 {
-	socket.init();
+	if (initializeSocket) {
+		socket.init();
+	}
+	
    BOOL bStatus;
 
    // Initialize condition var and mutex
@@ -162,6 +165,31 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_)
    return TRUE;
 }
 
+void HRMReceiver::Restart() {
+	UCHAR ucDeviceNumber = 0;
+	ReinitAttributes();
+	if (Init(ucDeviceNumber, false)) {
+		Start();
+	}
+	
+}
+
+
+void HRMReceiver::ReinitAttributes() {
+
+	ucChannelType = CHANNEL_TYPE_SLAVE; // HRM Receiver is a slave
+	pclSerialObject = (DSISerialGeneric*)NULL;
+	pclMessageObject = (DSIFramerANT*)NULL;
+	uiDSIThread = (DSI_THREAD_ID)NULL;
+	bMyDone = FALSE;
+	bDone = FALSE;
+	bDisplay = TRUE;
+	bProcessedData = TRUE;
+	bBroadcasting = FALSE;
+
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Close
@@ -192,6 +220,8 @@ void HRMReceiver::Close()
    DSIDebug::Close();
 #endif
 
+
+   // reinitalize receiver
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,7 +235,7 @@ void HRMReceiver::Start()
    BOOL bStatus;
 
    // Print out the menu to start
-   PrintMenu();
+   //PrintMenu();
 
    // Start ANT channel setup
    bStatus = InitANT();
@@ -337,7 +367,10 @@ void HRMReceiver::Start()
 
    printf("Closing the Heart Rate Monitor Receiver!\n");
 
+   this->Restart();
+
    return;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,12 +384,11 @@ BOOL HRMReceiver::InitANT(void)
    BOOL bStatus; // ANT initialisation status
 
    // Reset system
-   printf("Resetting module...\n");
+
    bStatus = pclMessageObject->ResetSystem();
    DSIThread_Sleep(1000);
 
    // Start the test by setting network key
-   printf("Setting network key...\n");
    UCHAR ucNetKey[8] = USER_NETWORK_KEY;
 
    bStatus &= pclMessageObject->SetNetworkKey(ucNetworkNum, ucNetKey, MESSAGE_TIMEOUT);
@@ -452,7 +484,6 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
                   printf("Error configuring network key: Code 0%d\n", stMessage.aucData[2]);
                   break;
                }
-               printf("Network key set.\n");
                printf("Assigning channel...\n");
                bStatus = pclMessageObject->AssignChannel(ucAntChannel, PARAMETER_RX_NOT_TX, 0, MESSAGE_TIMEOUT);
                break;
@@ -552,7 +583,8 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
                   break;
                }
                printf("Channel unassigned\n");
-               printf("Press enter to exit\n");
+               printf("Press enter\n");
+			   keybd_event(VK_RETURN, 0, 0, 0);
                bMyDone = TRUE;
                break;
             }
@@ -572,6 +604,7 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
                   printf("Error closing channel: Code 0%d\n", stMessage.aucData[2]);
                   break;
                }
+
                // If this message was successful, wait for EVENT_CHANNEL_CLOSED to confirm channel is closed
                break;
             }
@@ -641,89 +674,13 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
 
       case MESG_STARTUP_MESG_ID:
       {
-         printf("RESET Complete, reason: ");
-
-         UCHAR ucReason = stMessage.aucData[MESSAGE_BUFFER_DATA1_INDEX];
-
-         if(ucReason == RESET_POR)
-            printf("RESET_POR");
-         if(ucReason & RESET_SUSPEND)
-            printf("RESET_SUSPEND ");
-         if(ucReason & RESET_SYNC)
-            printf("RESET_SYNC ");
-         if(ucReason & RESET_CMD)
-            printf("RESET_CMD ");
-         if(ucReason & RESET_WDT)
-            printf("RESET_WDT ");
-         if(ucReason & RESET_RST)
-            printf("RESET_RST ");
-         printf("\n");
-
+        
          break;
       }
 
       case MESG_CAPABILITIES_ID:
       {
-         printf("CAPABILITIES:\n");
-         printf("   Max ANT Channels: %d\n",stMessage.aucData[MESSAGE_BUFFER_DATA1_INDEX]);
-         printf("   Max ANT Networks: %d\n",stMessage.aucData[MESSAGE_BUFFER_DATA2_INDEX]);
-
-         UCHAR ucStandardOptions = stMessage.aucData[MESSAGE_BUFFER_DATA3_INDEX];
-         UCHAR ucAdvanced = stMessage.aucData[MESSAGE_BUFFER_DATA4_INDEX];
-         UCHAR ucAdvanced2 = stMessage.aucData[MESSAGE_BUFFER_DATA5_INDEX];
-
-         printf("Standard Options:\n");
-         if( ucStandardOptions & CAPABILITIES_NO_RX_CHANNELS )
-            printf("CAPABILITIES_NO_RX_CHANNELS\n");
-         if( ucStandardOptions & CAPABILITIES_NO_TX_CHANNELS )
-            printf("CAPABILITIES_NO_TX_CHANNELS\n");
-         if( ucStandardOptions & CAPABILITIES_NO_RX_MESSAGES )
-            printf("CAPABILITIES_NO_RX_MESSAGES\n");
-         if( ucStandardOptions & CAPABILITIES_NO_TX_MESSAGES )
-            printf("CAPABILITIES_NO_TX_MESSAGES\n");
-         if( ucStandardOptions & CAPABILITIES_NO_ACKD_MESSAGES )
-            printf("CAPABILITIES_NO_ACKD_MESSAGES\n");
-         if( ucStandardOptions & CAPABILITIES_NO_BURST_TRANSFER )
-            printf("CAPABILITIES_NO_BURST_TRANSFER\n");
-
-         printf("Advanced Options:\n");
-         if( ucAdvanced & CAPABILITIES_OVERUN_UNDERRUN )
-            printf("CAPABILITIES_OVERUN_UNDERRUN\n");
-         if( ucAdvanced & CAPABILITIES_NETWORK_ENABLED )
-            printf("CAPABILITIES_NETWORK_ENABLED\n");
-         if( ucAdvanced & CAPABILITIES_AP1_VERSION_2 )
-            printf("CAPABILITIES_AP1_VERSION_2\n");
-         if( ucAdvanced & CAPABILITIES_SERIAL_NUMBER_ENABLED )
-            printf("CAPABILITIES_SERIAL_NUMBER_ENABLED\n");
-         if( ucAdvanced & CAPABILITIES_PER_CHANNEL_TX_POWER_ENABLED )
-            printf("CAPABILITIES_PER_CHANNEL_TX_POWER_ENABLED\n");
-         if( ucAdvanced & CAPABILITIES_LOW_PRIORITY_SEARCH_ENABLED )
-            printf("CAPABILITIES_LOW_PRIORITY_SEARCH_ENABLED\n");
-         if( ucAdvanced & CAPABILITIES_SCRIPT_ENABLED )
-            printf("CAPABILITIES_SCRIPT_ENABLED\n");
-         if( ucAdvanced & CAPABILITIES_SEARCH_LIST_ENABLED )
-            printf("CAPABILITIES_SEARCH_LIST_ENABLED\n");
-
-         if(usSize_ > 4)
-         {
-            printf("Advanced 2 Options 1:\n");
-            if( ucAdvanced2 & CAPABILITIES_LED_ENABLED )
-               printf("CAPABILITIES_LED_ENABLED\n");
-            if( ucAdvanced2 & CAPABILITIES_EXT_MESSAGE_ENABLED )
-               printf("CAPABILITIES_EXT_MESSAGE_ENABLED\n");
-            if( ucAdvanced2 & CAPABILITIES_SCAN_MODE_ENABLED )
-               printf("CAPABILITIES_SCAN_MODE_ENABLED\n");
-            if( ucAdvanced2 & CAPABILITIES_RESERVED )
-               printf("CAPABILITIES_RESERVED\n");
-            if( ucAdvanced2 & CAPABILITIES_PROX_SEARCH_ENABLED )
-               printf("CAPABILITIES_PROX_SEARCH_ENABLED\n");
-            if( ucAdvanced2 & CAPABILITIES_EXT_ASSIGN_ENABLED )
-               printf("CAPABILITIES_EXT_ASSIGN_ENABLED\n");
-            if( ucAdvanced2 & CAPABILITIES_FS_ANTFS_ENABLED)
-               printf("CAPABILITIES_FREE_1\n");
-            if( ucAdvanced2 & CAPABILITIES_FIT1_ENABLED )
-               printf("CAPABILITIES_FIT1_ENABLED\n");
-         }
+         
          break;
       }
       case MESG_CHANNEL_STATUS_ID:
@@ -883,9 +840,14 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
 
 			const char *sendHR = (const char*)&ucHR;
 
-			socket.sendMessage(sendHR);
+			int sendResult = socket.sendMessage(sendHR);
 
             printf("HR: %d , Beat Count: %d , Beat Event Time: %d\n", ucHR, ucBeatCount, usEventTime);
+
+			// If client is disconnected, reinitialize socket
+			if (sendResult == -1){
+				socket.init();
+			}
 
 
             if (ucDeviceType == CURRENT_DEVICE)
@@ -990,7 +952,7 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
       }
    }
 
-   return;
+   //return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1053,4 +1015,4 @@ void HRMReceiver::DetectDevice(UCHAR &ucDeviceType_, BOOL &bOldToggleBit_, UCHAR
       ucDeviceType_ = LEGACY_DEVICE;
       printf("Legacy Device detected\n");
    }
-}
+} 

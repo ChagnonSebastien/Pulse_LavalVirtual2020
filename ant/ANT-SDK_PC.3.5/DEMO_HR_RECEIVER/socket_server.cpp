@@ -8,13 +8,21 @@ SocketServer::SocketServer()
 
 }
 
-void SocketServer::sendMessage(const char *senddata)
+int SocketServer::sendMessage(const char *senddata)
 {
 	int result = send(ClientSocket, senddata, (int)strlen(senddata), 0);
+	return result;
 }
 
 
 void SocketServer::init() {
+
+	if (ClientSocket != INVALID_SOCKET) { // reinitializing socket (client is disconnected)
+		closesocket(ClientSocket);
+	}
+
+	printf("Waiting for a client to connect... \n");
+
 	WSADATA wsaData;
 	int iResult;
 	struct addrinfo *result = NULL;
@@ -79,5 +87,7 @@ void SocketServer::init() {
 
 	// No longer need server socket
 	closesocket(ListenSocket);
+
+	printf("Client successfully connected\n");
 
 }

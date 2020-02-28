@@ -26,7 +26,7 @@ class SocketServer
 
 public:
 	SocketServer();
-	void sendMessage(const char *senddata);
+	int sendMessage(const char *senddata);
 	void init();
 
 private:
