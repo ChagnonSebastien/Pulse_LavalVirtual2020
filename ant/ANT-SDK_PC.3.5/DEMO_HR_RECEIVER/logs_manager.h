@@ -3,6 +3,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include "player.h"
 
 #define FILENAME "test.txt"
 
@@ -11,13 +12,12 @@ class LogsManager
 {
 public:
 	LogsManager();
-	void setUserProfile(int age, int fitnessLevel);
+	void setUserProfile();
 	void log(std::string time, std::string hr);
 	
 
 private:
-	int _age;
-	int _fitnessLevel;
+	Player _player;
 	std::ofstream _fs;
 	void logInFile(std::string text);
 

@@ -8,6 +8,10 @@ All rights reserved.
 */
 #include "demo_hr_receiver.h"
 #include <string>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 ////////////////////////////////////////////////////////////////////////////////
 // The Demo ANT+ HRM Receiver PC app.
 //
@@ -33,7 +37,7 @@ int main(int argc, char **argv)
    UCHAR ucDeviceNumber = 0;
 
    // ask user if playtest mode on
-   // if playtest mode on, ask user to enter player profil
+   // if playtest mode on, log data
 
    // if playtest mode off, server runs continuously
 
@@ -63,6 +67,7 @@ HRMReceiver::HRMReceiver()
    bProcessedData = TRUE;
    bBroadcasting = FALSE;
    socket = SocketServer();
+   logsManager = LogsManager();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,6 +165,7 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
    }
 
    // Create message thread.
+   logsManager.setUserProfile();
    uiDSIThread = DSIThread_CreateThread(&HRMReceiver::RunMessageThread, this);
    assert(uiDSIThread);
 
@@ -847,6 +853,21 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
 
             printf("HR: %d , Beat Count: %d , Beat Event Time: %d\n", ucHR, ucBeatCount, usEventTime);
 
+			// get current time
+			time_t rawtime;
+			struct tm * timeinfo;
+			time(&rawtime);
+			timeinfo = localtime(&rawtime);
+
+			// get hr in string format
+			std::string hr;
+			hr.push_back(ucHR);
+			int c = ucHR;
+
+			std::string currentTime = std::to_string(timeinfo->tm_mon + 1) + " " +  std::to_string(timeinfo->tm_mday) + " "  + time_in_HH_MM_SS_MMM();
+
+			logsManager.log(currentTime, std::to_string(c));
+
 			// If client is disconnected, reinitialize socket
 			if (sendResult == -1){
 				socket.init();
@@ -956,6 +977,33 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
    }
 
    //return;
+}
+
+/// Get current time
+
+std::string HRMReceiver::time_in_HH_MM_SS_MMM()
+{
+	using namespace std::chrono;
+
+	// get current time
+	auto now = system_clock::now();
+
+	// get number of milliseconds for the current second
+	// (remainder after division into seconds)
+	auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
+
+	// convert to std::time_t in order to convert to std::tm (broken time)
+	auto timer = system_clock::to_time_t(now);
+
+	// convert to broken time
+	std::tm bt = *std::localtime(&timer);
+
+	std::ostringstream oss;
+
+	oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
+	oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+
+	return oss.str();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

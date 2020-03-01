@@ -4,13 +4,15 @@ LogsManager::LogsManager()
 {
 	// open file
 	_fs.open(FILENAME, std::ios::app);
+	_player.age = 1;
+	_player.fitnessLevel = 1;
 }
 
-void LogsManager::setUserProfile(int age, int fitnessLevel)
+void LogsManager::setUserProfile()
 {
-	_age = age;
-	_fitnessLevel = fitnessLevel;
-	std::string text = "(player info) age: " + std::to_string(age) + " fitness level: " + std::to_string(fitnessLevel);
+	//_age = age;
+	//_fitnessLevel = fitnessLevel;
+	std::string text = "player_info age: " + std::to_string(_player.age) + " fitness_level: " + std::to_string(_player.fitnessLevel);
 	logInFile(text);
 }
 
@@ -22,6 +24,6 @@ void LogsManager::log(std::string time, std::string hr)
 
 void LogsManager::logInFile(std::string text)
 {
-	_fs << text;
+	_fs << text << std::endl;
 }
 

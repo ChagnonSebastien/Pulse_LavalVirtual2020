@@ -21,6 +21,7 @@ All rights reserved.
 #include <assert.h>
 //#include <string.h>
 #include "socket_server.h"
+#include "logs_manager.h"
 #include <conio.h>
 
 
@@ -107,6 +108,9 @@ private:
    // Detect transmitter device type: current or legacy
    void DetectDevice(UCHAR &ucDeviceType_, BOOL &bOldToggleBit_, UCHAR &ucToggleAttempts_, BOOL bToggleBit);
 
+   // Get current time
+   std::string time_in_HH_MM_SS_MMM();
+
    // Network variables
    UCHAR ucAntChannel;
    UCHAR ucTransType;
@@ -129,6 +133,10 @@ private:
    BOOL bProcessedData;
 
    SocketServer socket;
+   LogsManager logsManager;
+
+  
+
 };
 
 #endif
