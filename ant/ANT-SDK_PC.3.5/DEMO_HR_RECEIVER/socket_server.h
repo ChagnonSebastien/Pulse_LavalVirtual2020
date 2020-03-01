@@ -28,8 +28,6 @@ public:
 	SocketServer();
 	int sendMessage(const char *senddata);
 	void init();
-
-private:
 	SOCKET ClientSocket;
 	SOCKET ListenSocket;
 };

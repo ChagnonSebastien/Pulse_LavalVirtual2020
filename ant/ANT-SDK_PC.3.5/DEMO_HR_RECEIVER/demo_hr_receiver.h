@@ -100,6 +100,7 @@ private:
 
    // Listens for a response from the module
    void MessageThread();
+   void ReadMessageThread();
    // Decodes the received message
    void ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_);
 

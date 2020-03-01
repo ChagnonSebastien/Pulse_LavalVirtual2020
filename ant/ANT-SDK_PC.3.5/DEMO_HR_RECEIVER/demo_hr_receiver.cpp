@@ -192,7 +192,7 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
 
 DSI_THREAD_RETURN HRMReceiver::RunReadMessageThread(void *pvParameter_)
 {
-	//((HRMReceiver*)pvParameter_)->MessageThread();
+	((HRMReceiver*)pvParameter_)->ReadMessageThread();
 	return NULL;
 }
 
@@ -236,16 +236,23 @@ void HRMReceiver::Close()
 {
    //Wait for test to be done
    DSIThread_MutexLock(&mutexTestDone);
+   DSIThread_MutexLock(&mutexTestDoneRead);
    bDone = TRUE;
 
    UCHAR ucWaitResult = DSIThread_CondTimedWait(&condTestDone, &mutexTestDone, DSI_THREAD_INFINITE);
    assert(ucWaitResult == DSI_THREAD_ENONE);
 
+   UCHAR ucWaitResultRead = DSIThread_CondTimedWait(&condTestDoneRead, &mutexTestDoneRead, DSI_THREAD_INFINITE);
+   assert(ucWaitResultRead == DSI_THREAD_ENONE);
+
    DSIThread_MutexUnlock(&mutexTestDone);
+   DSIThread_MutexUnlock(&mutexTestDoneRead);
 
    //Destroy mutex and condition var
    DSIThread_MutexDestroy(&mutexTestDone);
    DSIThread_CondDestroy(&condTestDone);
+   DSIThread_MutexDestroy(&mutexTestDoneRead);
+   DSIThread_CondDestroy(&condTestDoneRead);
 
    //Close all stuff
    if(pclSerialObject)
@@ -483,6 +490,54 @@ void HRMReceiver::MessageThread()
    UCHAR ucCondResult = DSIThread_CondSignal(&condTestDone);
    assert(ucCondResult == DSI_THREAD_ENONE);
    DSIThread_MutexUnlock(&mutexTestDone);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ReadMessageThread
+//
+// Run read message thread
+////////////////////////////////////////////////////////////////////////////////
+void HRMReceiver::ReadMessageThread()
+{
+
+	ANT_MESSAGE stMessage;
+	USHORT usSize;
+	bDone = FALSE;
+	int iResult;
+	char recvbuf[DEFAULT_BUFLEN] = "";
+	int recvbuflen = DEFAULT_BUFLEN;
+
+	while (!bDone)
+	{
+		iResult = recv(socket.ClientSocket, recvbuf, recvbuflen, 0);
+		std::string s(recvbuf);
+
+		if (iResult > 0 && s == "1") { // Game started
+			// get current time
+			time_t rawtime;
+			struct tm * timeinfo;
+			time(&rawtime);
+			timeinfo = localtime(&rawtime);
+			std::string currentTime = "\n" + std::to_string(timeinfo->tm_mon + 1) + " " + std::to_string(timeinfo->tm_mday) + " " + time_in_HH_MM_SS_MMM();
+			logsManager.log(currentTime, "start");
+		}
+		else if (iResult > 0 && s == "2") {
+			// get current time
+			time_t rawtime;
+			struct tm * timeinfo;
+			time(&rawtime);
+			timeinfo = localtime(&rawtime);
+			std::string currentTime = "\n" + std::to_string(timeinfo->tm_mon + 1) + " " + std::to_string(timeinfo->tm_mday) + " " + time_in_HH_MM_SS_MMM();
+			logsManager.log(currentTime, "end");
+		}
+
+	}
+
+	DSIThread_MutexLock(&mutexTestDoneRead);
+	UCHAR ucCondResult = DSIThread_CondSignal(&condTestDoneRead);
+	assert(ucCondResult == DSI_THREAD_ENONE);
+	DSIThread_MutexUnlock(&mutexTestDoneRead);
 
 }
 
