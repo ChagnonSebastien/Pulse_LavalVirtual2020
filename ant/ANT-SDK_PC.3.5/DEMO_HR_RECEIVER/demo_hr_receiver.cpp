@@ -68,6 +68,7 @@ HRMReceiver::HRMReceiver()
    bBroadcasting = FALSE;
    socket = SocketServer();
    logsManager = LogsManager();
+   logsManager.setUserProfile();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,7 +166,6 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
    }
 
    // Create message thread.
-   logsManager.setUserProfile();
    uiDSIThread = DSIThread_CreateThread(&HRMReceiver::RunMessageThread, this);
    assert(uiDSIThread);
 
