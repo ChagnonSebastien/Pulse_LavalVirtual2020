@@ -96,6 +96,7 @@ private:
 
    // Starts the Message thread.
    static DSI_THREAD_RETURN RunMessageThread(void *pvParameter_);
+   static DSI_THREAD_RETURN RunReadMessageThread(void *pvParameter_);
 
    // Listens for a response from the module
    void MessageThread();
@@ -110,6 +111,7 @@ private:
 
    // Get current time
    std::string time_in_HH_MM_SS_MMM();
+
 
    // Network variables
    UCHAR ucAntChannel;
@@ -126,8 +128,11 @@ private:
    DSISerialGeneric* pclSerialObject;
    DSIFramerANT* pclMessageObject;
    DSI_THREAD_ID uiDSIThread;
+   DSI_THREAD_ID uiDSIThreadRead;
    DSI_CONDITION_VAR condTestDone;
+   DSI_CONDITION_VAR condTestDoneRead;
    DSI_MUTEX mutexTestDone;
+   DSI_MUTEX mutexTestDoneRead;
 
    BOOL bDisplay;
    BOOL bProcessedData;

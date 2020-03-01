@@ -61,6 +61,7 @@ HRMReceiver::HRMReceiver()
    pclSerialObject = (DSISerialGeneric*)NULL;
    pclMessageObject = (DSIFramerANT*)NULL;
    uiDSIThread = (DSI_THREAD_ID)NULL;
+   uiDSIThreadRead = (DSI_THREAD_ID)NULL;
    bMyDone = FALSE;
    bDone = FALSE;
    bDisplay = TRUE;
@@ -102,12 +103,19 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
 	
    BOOL bStatus;
 
-   // Initialize condition var and mutex
+   // Initialize condition var and mutex (message thread)
    UCHAR ucCondInit = DSIThread_CondInit(&condTestDone);
    assert(ucCondInit == DSI_THREAD_ENONE);
 
    UCHAR ucMutexInit = DSIThread_MutexInit(&mutexTestDone);
    assert(ucMutexInit == DSI_THREAD_ENONE);
+
+   // Initialize condition var and mutex (reading message thread)
+   UCHAR ucCondInitRead = DSIThread_CondInit(&condTestDoneRead);
+   assert(ucCondInitRead == DSI_THREAD_ENONE);
+
+   UCHAR ucMutexInitRead = DSIThread_MutexInit(&mutexTestDoneRead);
+   assert(ucMutexInitRead == DSI_THREAD_ENONE);
 
 #if defined(DEBUG_FILE)
    // Enable logging
@@ -169,10 +177,27 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
    uiDSIThread = DSIThread_CreateThread(&HRMReceiver::RunMessageThread, this);
    assert(uiDSIThread);
 
+
+   // Create thread for reading messages
+   // Create message thread.
+   uiDSIThreadRead = DSIThread_CreateThread(&HRMReceiver::RunReadMessageThread, this);
+   assert(uiDSIThreadRead);
+
+
+
    printf("USB device initialisation was successful!\n"); fflush(stdout);
 
    return TRUE;
 }
+
+DSI_THREAD_RETURN HRMReceiver::RunReadMessageThread(void *pvParameter_)
+{
+	//((HRMReceiver*)pvParameter_)->MessageThread();
+	return NULL;
+}
+
+
+
 
 void HRMReceiver::Restart() {
 	UCHAR ucDeviceNumber = 0;
@@ -190,6 +215,7 @@ void HRMReceiver::ReinitAttributes() {
 	pclSerialObject = (DSISerialGeneric*)NULL;
 	pclMessageObject = (DSIFramerANT*)NULL;
 	uiDSIThread = (DSI_THREAD_ID)NULL;
+	uiDSIThreadRead = (DSI_THREAD_ID)NULL;
 	bMyDone = FALSE;
 	bDone = FALSE;
 	bDisplay = TRUE;
