@@ -24,6 +24,12 @@
     <ClCompile Include="socket_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="logs_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="demo_hr_receiver.h">
@@ -35,10 +41,21 @@
     <ClInclude Include="socket_server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="logs_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="DEMO_HR_RECEIVER.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="test.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

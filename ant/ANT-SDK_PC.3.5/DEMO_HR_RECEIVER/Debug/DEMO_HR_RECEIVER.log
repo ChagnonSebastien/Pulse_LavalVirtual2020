@@ -1,7 +1,17 @@
 ﻿cl : Ligne de commande warning D9035: l'option 'Gm' est déconseillée et sera supprimée dans une version ultérieure
   demo_hr_receiver.cpp
-c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(115): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(132): warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdlib.h(1191): note: voir la déclaration de 'getenv'
-c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(252): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(294): warning C4996: 'sscanf': This function or variable may be unsafe. Consider using sscanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\stdio.h(2263): note: voir la déclaration de 'sscanf'
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(521): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: voir la déclaration de 'localtime'
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(530): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: voir la déclaration de 'localtime'
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(504): warning C4101: 'stMessage' : variable locale non référencée
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(505): warning C4101: 'usSize' : variable locale non référencée
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(961): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: voir la déclaration de 'localtime'
+c:\users\projet4\documents\lavalvirtual2020\ant\ant-sdk_pc.3.5\demo_hr_receiver\demo_hr_receiver.cpp(1100): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.17763.0\ucrt\time.h(506): note: voir la déclaration de 'localtime'
   DEMO_HR_RECEIVER.vcxproj -> C:\Users\projet4\Documents\LavalVirtual2020\ant\ANT-SDK_PC.3.5\Debug\DEMO_HR_RECEIVER.exe

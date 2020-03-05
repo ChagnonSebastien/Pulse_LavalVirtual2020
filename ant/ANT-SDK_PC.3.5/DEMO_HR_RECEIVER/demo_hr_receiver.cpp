@@ -8,6 +8,10 @@ All rights reserved.
 */
 #include "demo_hr_receiver.h"
 #include <string>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
+#include <sstream>
 ////////////////////////////////////////////////////////////////////////////////
 // The Demo ANT+ HRM Receiver PC app.
 //
@@ -24,16 +28,19 @@ All rights reserved.
 int main(int argc, char **argv)
 {
 
-
-
    HRMReceiver* Receiver = new HRMReceiver();
+   bool PLAYTEST_MODE = false;
 
-   // Initialising with invalid device.
+   // Initialising with invalid device. 
    // User will be prompted later if it wasn't passed in.
    // ucDeviceNumber = USB device to which the ANT device is connected
    UCHAR ucDeviceNumber = 0;
 
-   // initialize socket
+   // ask user if playtest mode on
+   // if playtest mode on, log data
+
+   // if playtest mode off, server runs continuously
+
 
    if(Receiver->Init(ucDeviceNumber, true))
       Receiver->Start(); // initANT and receives hr from monitor
@@ -54,12 +61,15 @@ HRMReceiver::HRMReceiver()
    pclSerialObject = (DSISerialGeneric*)NULL;
    pclMessageObject = (DSIFramerANT*)NULL;
    uiDSIThread = (DSI_THREAD_ID)NULL;
+   uiDSIThreadRead = (DSI_THREAD_ID)NULL;
    bMyDone = FALSE;
    bDone = FALSE;
    bDisplay = TRUE;
    bProcessedData = TRUE;
    bBroadcasting = FALSE;
    socket = SocketServer();
+   logsManager = LogsManager();
+   logsManager.setUserProfile();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,12 +103,19 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
 	
    BOOL bStatus;
 
-   // Initialize condition var and mutex
+   // Initialize condition var and mutex (message thread)
    UCHAR ucCondInit = DSIThread_CondInit(&condTestDone);
    assert(ucCondInit == DSI_THREAD_ENONE);
 
    UCHAR ucMutexInit = DSIThread_MutexInit(&mutexTestDone);
    assert(ucMutexInit == DSI_THREAD_ENONE);
+
+   // Initialize condition var and mutex (reading message thread)
+   UCHAR ucCondInitRead = DSIThread_CondInit(&condTestDoneRead);
+   assert(ucCondInitRead == DSI_THREAD_ENONE);
+
+   UCHAR ucMutexInitRead = DSIThread_MutexInit(&mutexTestDoneRead);
+   assert(ucMutexInitRead == DSI_THREAD_ENONE);
 
 #if defined(DEBUG_FILE)
    // Enable logging
@@ -160,10 +177,27 @@ BOOL HRMReceiver::Init(UCHAR ucDeviceNumber_, BOOL initializeSocket)
    uiDSIThread = DSIThread_CreateThread(&HRMReceiver::RunMessageThread, this);
    assert(uiDSIThread);
 
+
+   // Create thread for reading messages
+   // Create message thread.
+   uiDSIThreadRead = DSIThread_CreateThread(&HRMReceiver::RunReadMessageThread, this);
+   assert(uiDSIThreadRead);
+
+
+
    printf("USB device initialisation was successful!\n"); fflush(stdout);
 
    return TRUE;
 }
+
+DSI_THREAD_RETURN HRMReceiver::RunReadMessageThread(void *pvParameter_)
+{
+	((HRMReceiver*)pvParameter_)->ReadMessageThread();
+	return NULL;
+}
+
+
+
 
 void HRMReceiver::Restart() {
 	UCHAR ucDeviceNumber = 0;
@@ -181,6 +215,7 @@ void HRMReceiver::ReinitAttributes() {
 	pclSerialObject = (DSISerialGeneric*)NULL;
 	pclMessageObject = (DSIFramerANT*)NULL;
 	uiDSIThread = (DSI_THREAD_ID)NULL;
+	uiDSIThreadRead = (DSI_THREAD_ID)NULL;
 	bMyDone = FALSE;
 	bDone = FALSE;
 	bDisplay = TRUE;
@@ -201,16 +236,23 @@ void HRMReceiver::Close()
 {
    //Wait for test to be done
    DSIThread_MutexLock(&mutexTestDone);
+   DSIThread_MutexLock(&mutexTestDoneRead);
    bDone = TRUE;
 
    UCHAR ucWaitResult = DSIThread_CondTimedWait(&condTestDone, &mutexTestDone, DSI_THREAD_INFINITE);
    assert(ucWaitResult == DSI_THREAD_ENONE);
 
+   UCHAR ucWaitResultRead = DSIThread_CondTimedWait(&condTestDoneRead, &mutexTestDoneRead, DSI_THREAD_INFINITE);
+   assert(ucWaitResultRead == DSI_THREAD_ENONE);
+
    DSIThread_MutexUnlock(&mutexTestDone);
+   DSIThread_MutexUnlock(&mutexTestDoneRead);
 
    //Destroy mutex and condition var
    DSIThread_MutexDestroy(&mutexTestDone);
    DSIThread_CondDestroy(&condTestDone);
+   DSIThread_MutexDestroy(&mutexTestDoneRead);
+   DSIThread_CondDestroy(&condTestDoneRead);
 
    //Close all stuff
    if(pclSerialObject)
@@ -448,6 +490,54 @@ void HRMReceiver::MessageThread()
    UCHAR ucCondResult = DSIThread_CondSignal(&condTestDone);
    assert(ucCondResult == DSI_THREAD_ENONE);
    DSIThread_MutexUnlock(&mutexTestDone);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// ReadMessageThread
+//
+// Run read message thread
+////////////////////////////////////////////////////////////////////////////////
+void HRMReceiver::ReadMessageThread()
+{
+
+	ANT_MESSAGE stMessage;
+	USHORT usSize;
+	bDone = FALSE;
+	int iResult;
+	char recvbuf[DEFAULT_BUFLEN] = "";
+	int recvbuflen = DEFAULT_BUFLEN;
+
+	while (!bDone)
+	{
+		iResult = recv(socket.ClientSocket, recvbuf, recvbuflen, 0);
+		std::string s(recvbuf);
+
+		if (iResult > 0 && s == "1") { // Game started
+			// get current time
+			time_t rawtime;
+			struct tm * timeinfo;
+			time(&rawtime);
+			timeinfo = localtime(&rawtime);
+			std::string currentTime = "\n" + std::to_string(timeinfo->tm_mon + 1) + " " + std::to_string(timeinfo->tm_mday) + " " + time_in_HH_MM_SS_MMM();
+			logsManager.log(currentTime, "start");
+		}
+		else if (iResult > 0 && s == "2") {
+			// get current time
+			time_t rawtime;
+			struct tm * timeinfo;
+			time(&rawtime);
+			timeinfo = localtime(&rawtime);
+			std::string currentTime = "\n" + std::to_string(timeinfo->tm_mon + 1) + " " + std::to_string(timeinfo->tm_mday) + " " + time_in_HH_MM_SS_MMM();
+			logsManager.log(currentTime, "end");
+		}
+
+	}
+
+	DSIThread_MutexLock(&mutexTestDoneRead);
+	UCHAR ucCondResult = DSIThread_CondSignal(&condTestDoneRead);
+	assert(ucCondResult == DSI_THREAD_ENONE);
+	DSIThread_MutexUnlock(&mutexTestDoneRead);
 
 }
 
@@ -844,6 +934,21 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
 
             printf("HR: %d , Beat Count: %d , Beat Event Time: %d\n", ucHR, ucBeatCount, usEventTime);
 
+			// get current time
+			time_t rawtime;
+			struct tm * timeinfo;
+			time(&rawtime);
+			timeinfo = localtime(&rawtime);
+
+			// get hr in string format
+			std::string hr;
+			hr.push_back(ucHR);
+			int c = ucHR;
+
+			std::string currentTime = std::to_string(timeinfo->tm_mon + 1) + " " +  std::to_string(timeinfo->tm_mday) + " "  + time_in_HH_MM_SS_MMM();
+
+			logsManager.log(currentTime, std::to_string(c));
+
 			// If client is disconnected, reinitialize socket
 			if (sendResult == -1){
 				socket.init();
@@ -953,6 +1058,33 @@ void HRMReceiver::ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_)
    }
 
    //return;
+}
+
+/// Get current time
+
+std::string HRMReceiver::time_in_HH_MM_SS_MMM()
+{
+	using namespace std::chrono;
+
+	// get current time
+	auto now = system_clock::now();
+
+	// get number of milliseconds for the current second
+	// (remainder after division into seconds)
+	auto ms = duration_cast<milliseconds>(now.time_since_epoch()) % 1000;
+
+	// convert to std::time_t in order to convert to std::tm (broken time)
+	auto timer = system_clock::to_time_t(now);
+
+	// convert to broken time
+	std::tm bt = *std::localtime(&timer);
+
+	std::ostringstream oss;
+
+	oss << std::put_time(&bt, "%H:%M:%S"); // HH:MM:SS
+	oss << '.' << std::setfill('0') << std::setw(3) << ms.count();
+
+	return oss.str();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

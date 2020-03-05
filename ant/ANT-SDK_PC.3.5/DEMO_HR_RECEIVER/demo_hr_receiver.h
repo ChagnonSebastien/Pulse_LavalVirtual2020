@@ -21,6 +21,7 @@ All rights reserved.
 #include <assert.h>
 //#include <string.h>
 #include "socket_server.h"
+#include "logs_manager.h"
 #include <conio.h>
 
 
@@ -95,9 +96,11 @@ private:
 
    // Starts the Message thread.
    static DSI_THREAD_RETURN RunMessageThread(void *pvParameter_);
+   static DSI_THREAD_RETURN RunReadMessageThread(void *pvParameter_);
 
    // Listens for a response from the module
    void MessageThread();
+   void ReadMessageThread();
    // Decodes the received message
    void ProcessMessage(ANT_MESSAGE stMessage, USHORT usSize_);
 
@@ -106,6 +109,10 @@ private:
 
    // Detect transmitter device type: current or legacy
    void DetectDevice(UCHAR &ucDeviceType_, BOOL &bOldToggleBit_, UCHAR &ucToggleAttempts_, BOOL bToggleBit);
+
+   // Get current time
+   std::string time_in_HH_MM_SS_MMM();
+
 
    // Network variables
    UCHAR ucAntChannel;
@@ -122,13 +129,20 @@ private:
    DSISerialGeneric* pclSerialObject;
    DSIFramerANT* pclMessageObject;
    DSI_THREAD_ID uiDSIThread;
+   DSI_THREAD_ID uiDSIThreadRead;
    DSI_CONDITION_VAR condTestDone;
+   DSI_CONDITION_VAR condTestDoneRead;
    DSI_MUTEX mutexTestDone;
+   DSI_MUTEX mutexTestDoneRead;
 
    BOOL bDisplay;
    BOOL bProcessedData;
 
    SocketServer socket;
+   LogsManager logsManager;
+
+  
+
 };
 
 #endif
